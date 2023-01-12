@@ -91,6 +91,7 @@ class TradewagonCache:
         for idea_id in ideas_ids:
             closed_idea = self.ideas.pop(idea_id, None)
             if closed_idea:
+                logger.info(f"New idea that closed {closed_idea}")
                 closed_idea.status = IdeaStatusEnum.IDEA_STATUS_CLOSED.value
                 closed_ideas.append(closed_idea)
 
