@@ -1,0 +1,61 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      PNL_BOUND: ${{ secrets.PNL_BOUND }}
+      ROI_BOUND: ${{ secrets.ROI_BOUND }}
+      TRADER_LIFETIME: ${{ secrets.TRADER_LIFETIME }}
+      TRADEWAGON_PROFILES_TO_FETCH: ${{ secrets.TRADEWAGON_PROFILES_TO_FETCH }}
+      WIN_RATE_BOUND: ${{ secrets.WIN_RATE_BOUND }}   
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      COLLECTOR_HOST: ${{ secrets.COLLECTOR_HOST }}
+      COLLECTOR_PORT: ${{ secrets.COLLECTOR_PORT }}
+      IDEAS_INTERVAL_UPDATE: ${{ secrets.IDEAS_INTERVAL_UPDATE }}
+      TRADERS_INTERVAL_UPDATE: ${{ secrets.TRADERS_INTERVAL_UPDATE}}
+      
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Add SSH key
+      run: |
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.PRIVATE_SSH }}" > /home/runner/.ssh/github_actions
+          chmod 600 /home/runner/.ssh/github_actions
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null   
+          ssh-add /home/runner/.ssh/github_actions
+    - name: Git Sumbodule Update
+      run: |
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
+    - name: Lint with flake8
+      run: |
+         # stop the build if there are Python syntax errors or undefined names
+         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest

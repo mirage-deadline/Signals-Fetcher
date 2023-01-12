@@ -1,0 +1,11 @@
+bin/
+venv/
+.env
+**/__pycache__
+__pycache__/
+/*.pyc
+.pytest_cache/
+chromedriver
+.DS_Store/
+.idea/
+test.py

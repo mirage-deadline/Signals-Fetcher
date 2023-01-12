@@ -1,0 +1,3 @@
+[submodule "SignalsRepeaterProtobuf"]
+	path = SignalsRepeaterProtobuf
+	url = git@github.com:mirage-deadline/SignalsRepeaterProtobuf.git

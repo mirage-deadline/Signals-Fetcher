@@ -1,0 +1,5 @@
+betterproto==2.0.0b5
+grpcio==1.51.1
+grpcio-tools==1.51.1
+grpclib==0.4.3
+protobuf==4.21.12
